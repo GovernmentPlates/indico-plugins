@@ -78,7 +78,9 @@ class SummarizeEvent(RHManageEventBase):
                 host=current_plugin.settings.get('llm_host_name'),
                 url=current_plugin.settings.get('llm_provider_url'),
                 auth_token=current_plugin.settings.get('llm_auth_token'),
-                max_tokens=current_plugin.settings.get('llm_max_tokens')
+                max_tokens=current_plugin.settings.get('llm_max_tokens'),
+                temperature=current_plugin.settings.get('llm_temperature'),
+                system_prompt=current_plugin.settings.get('llm_system_prompt')
             )
 
         if current_plugin.settings.get('llm_stream_response'):
@@ -87,7 +89,7 @@ class SummarizeEvent(RHManageEventBase):
                 content_type='text/event-stream',
                 headers={
                     'Cache-Control': 'no-cache',
-                    'X-Accel-Buffering': 'no'
+                    'X-Accel-Buffering': 'no'  # Disable buffering for nginx
                 }
             )
 

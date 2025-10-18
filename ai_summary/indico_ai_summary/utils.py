@@ -12,6 +12,7 @@ import json
 from enum import Enum
 from collections.abc import Generator
 
+from flask_pluginengine import current_plugin
 from indico_ai_summary.llm_interface import LLMInterface
 
 
@@ -65,14 +66,14 @@ def generate_chunk_stream(chunks: list[str], prompt: str, llm_model: LLMInterfac
         full_prompt = f'{prompt}\n\n{chunk}'
         response_stream = llm_model.execute(full_prompt, stream=True)
         if not response_stream:
-            yield f"data: {json.dumps({'error': 'An error occurred during summarization.'})}\n\n"
+            yield f"data: {json.dumps({'error': 'Streaming error: No response received.'})}\n\n"
             return
         try:
             for delta in response_stream:
                 md_total += delta
                 html_snapshot = convert_markup(md_total, MarkupMode.MARKDOWN_TO_HTML)
                 yield f"data: {json.dumps({'summary_html': html_snapshot})}\n\n"
-        except Exception:
-            yield f"data: {json.dumps({'error': 'Streaming error from LLM provider'})}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'error': f'Streaming error: {e}'})}\n\n"
             return
     yield 'data: [DONE]\n\n'
